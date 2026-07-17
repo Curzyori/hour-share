@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Curzyori/hour-share/main/images/desktop-preview.png" alt="Hour Share デスクトップダッシュボード" width="600"/>
+  <img src="https://raw.githubusercontent.com/Curzyori/hour-share/main/images/desktop-preview.png" alt="Hour Share デスクトップダッシュボード" width="800"/>
 </p>
 
 <p align="center">
