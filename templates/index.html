@@ -1,0 +1,1787 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Hour Share — Local Web Share via QR</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%235645D4'/%3E%3Cpath d='M10 8h12M10 8l4 8-4 8M22 8l-4 8 4 8' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" />
+  <style>
+    @font-face {
+      font-family: "DM Sans";
+      src: url("static/fonts/dm-sans-400.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "DM Sans";
+      src: url("static/fonts/dm-sans-500.ttf") format("truetype");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "DM Sans";
+      src: url("static/fonts/dm-sans-600.ttf") format("truetype");
+      font-weight: 600;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "DM Sans";
+      src: url("static/fonts/dm-sans-700.ttf") format("truetype");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      src: url("static/fonts/space-grotesk-400.ttf") format("truetype");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      src: url("static/fonts/space-grotesk-500.ttf") format("truetype");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      src: url("static/fonts/space-grotesk-600.ttf") format("truetype");
+      font-weight: 600;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      src: url("static/fonts/space-grotesk-700.ttf") format("truetype");
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    /* ---------- Palette ---------- */
+    :root {
+      --primary: #5645D4;
+      --primary-soft: #ECE9FB;
+      --primary-ink: #3A2E96;
+      --canvas: #FFFFFF;
+      --surface: #F7F6F4;
+      --surface-2: #EDEBE8;
+      --ink: #1A1A1A;
+      --ink-2: #4A4A4A;
+      --ink-3: #6B6B6B;
+      --line: #E5E3DF;
+      --danger: #D44A4A;
+      --danger-bg: #FBE9E9;
+      --ok: #2BA66B;
+      --ok-bg: #E5F5EC;
+      --warn: #8A5A00;
+      --warn-bg: #FFF1D6;
+      --radius: 14px;
+      --radius-sm: 10px;
+      --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 14px rgba(86,69,212,.08);
+      --shadow-lg: 0 2px 4px rgba(0,0,0,.05), 0 10px 28px rgba(86,69,212,.12);
+    }
+
+    [data-theme="dark"] {
+      --primary: #8B7CFF;
+      --primary-soft: #2A2745;
+      --primary-ink: #C4BBFF;
+      --canvas: #16161B;
+      --surface: #1E1E25;
+      --surface-2: #28282F;
+      --ink: #F5F5F5;
+      --ink-2: #C4C4C4;
+      --ink-3: #A1A1A1;
+      --line: #33333D;
+      --danger: #E66A6A;
+      --danger-bg: #3A1F1F;
+      --ok: #4ADE80;
+      --ok-bg: #14321F;
+      --warn: #FBBF24;
+      --warn-bg: #3A2B0F;
+      --shadow: 0 1px 2px rgba(0,0,0,.2), 0 4px 14px rgba(0,0,0,.25);
+      --shadow-lg: 0 2px 4px rgba(0,0,0,.25), 0 8px 24px rgba(0,0,0,.4);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--canvas); color: var(--ink); }
+    body {
+      font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, "Helvetica Neue", Arial, sans-serif;
+      font-size: 15px; line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+    }
+    h1, h2, h3, h4, h5, h6, .brand, .btn, .nav-pill, .tab-pill, .pill, .qr-label, .card h2 {
+      font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+    }
+
+    /* ---------- Grain / Noise Overlay ---------- */
+    body::after {
+      content: "";
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: .035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 256px 256px;
+      mix-blend-mode: overlay;
+    }
+    [data-theme="dark"] body::after { opacity: .06; mix-blend-mode: soft-light; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, kbd, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    button { font: inherit; }
+
+    /* ---------- Focus ---------- */
+    *:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+    /* ---------- Skip link ---------- */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 8px;
+      z-index: 200;
+      background: var(--primary);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .skip-link:focus { left: 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ---------- Scrollbar ---------- */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+    .group-messages { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+
+    /* ---------- Layout ---------- */
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 20px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    @media (max-width: 768px) {
+      .wrap { padding: 0 16px; }
+    }
+    @media (max-width: 480px) {
+      .wrap { padding: 0 12px; }
+    }
+
+    header.top {
+      background: color-mix(in srgb, var(--canvas) 88%, transparent);
+      backdrop-filter: saturate(180%) blur(12px);
+      -webkit-backdrop-filter: saturate(180%) blur(12px);
+      border-bottom: 1px solid var(--line);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .top-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; gap: 12px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: -.01em; }
+    .brand .logo { width: 34px; height: 34px; flex-shrink: 0; }
+    .brand .title { font-size: 19px; display: flex; align-items: center; gap: 6px; margin: 0; }
+    .brand .title .mobile-br { display: none; }
+    .brand .title em { color: var(--primary); font-style: normal; font-weight: 800; }
+    .brand .title .version { font-size: 11px; font-weight: 600; color: var(--primary-ink); background: var(--primary-soft); padding: 1px 8px; border-radius: 4px; border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent); }
+    .brand .sub { color: var(--ink-3); font-weight: 500; font-size: 12px; margin-top: 1px; }
+
+    .header-actions { display: flex; align-items: center; gap: 6px; position: relative; }
+
+    .header-icon-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      color: var(--ink-2);
+      text-decoration: none;
+      transition: background .15s, color .15s, transform .05s;
+    }
+    .header-icon-btn:hover { background: var(--surface-2); color: var(--ink); text-decoration: none; }
+    .header-icon-btn:active { transform: translateY(1px); }
+    .header-icon-btn svg { width: 18px; height: 18px; }
+
+    .header-icon-btn.donate {
+      color: #E44A6B;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 12px;
+      width: auto;
+    }
+    .header-icon-btn.donate .donate-text {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .header-icon-btn.donate svg {
+      width: 14px;
+      height: 14px;
+    }
+    .header-icon-btn.donate:hover { background: #FDE8ED; color: #C42A4A; }
+    [data-theme="dark"] .header-icon-btn.donate:hover { background: #3A1F2A; }
+
+    .option-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      color: var(--ink-2);
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      padding: 0;
+      font-size: 18px; font-weight: 700;
+      line-height: 1;
+    }
+    .option-btn:hover { background: var(--surface-2); color: var(--ink); }
+    .option-btn.active { background: var(--primary-soft); color: var(--primary); border-color: var(--primary); }
+
+    .dropdown-menu {
+      position: absolute; top: calc(100% + 6px); right: 0;
+      min-width: 170px;
+      background: var(--canvas);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 6px;
+      display: none;
+      z-index: 100;
+    }
+    .dropdown-menu.open { display: block; }
+    .dropdown-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--ink);
+      font-size: 14px; font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      border: 0; background: transparent;
+      width: 100%; text-align: left;
+      transition: background .1s;
+    }
+    .dropdown-item:hover { background: var(--surface); }
+    .dropdown-item svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--ink-2); }
+
+    .lang-toggle,
+    .theme-toggle {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      color: var(--ink-2);
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    /* ---------- Touch targets (coarse pointer) ---------- */
+    @media (pointer: coarse) {
+      .header-icon-btn, .lang-toggle, .theme-toggle, .option-btn, .qr-toggle-btn {
+        width: 40px; height: 40px;
+      }
+      .url-pill { padding: 10px 16px; }
+    }
+    .lang-toggle:hover, .theme-toggle:hover { background: var(--surface-2); color: var(--ink); }
+    .lang-toggle { font-size: 16px; font-weight: 700; padding: 0; }
+    .theme-toggle svg { width: 18px; height: 18px; }
+    .theme-toggle .sun-icon { display: none; }
+    .theme-toggle .moon-icon { display: block; }
+    .theme-toggle.dark .sun-icon { display: block; }
+    .theme-toggle.dark .moon-icon { display: none; }
+
+    /* ---------- Nav Pills ---------- */
+    .nav-pills {
+      display: inline-flex; gap: 4px;
+      padding: 4px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      margin: 20px 0 16px;
+    }
+    .nav-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 0;
+      background: transparent;
+      color: var(--ink-2);
+      font-weight: 600; font-size: 13px;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .nav-pill:hover { background: var(--surface-2); color: var(--ink); }
+    .nav-pill.active { background: var(--primary); color: #fff; }
+    .nav-pill svg { width: 16px; height: 16px; }
+
+    .nav-panel { display: none; }
+    .nav-panel.active { display: block; }
+
+    /* ---------- Home Layout: QR + Tabs ---------- */
+    .home-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 920px) {
+      .home-grid { grid-template-columns: 1fr; }
+      .qr-card.qr-hidden .qr-img-wrap { display: none; }
+      .qr-card.qr-hidden .url-pill,
+      .qr-card.qr-hidden .meta-row { filter: none; pointer-events: auto; user-select: auto; }
+    }
+
+    /* ---------- QR Card ---------- */
+    .qr-card { text-align: center; }
+    .qr-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .qr-header .qr-label {
+      margin-bottom: 0;
+    }
+    .qr-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px; height: 32px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink-2);
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      padding: 0;
+    }
+    .qr-toggle-btn:hover { background: var(--surface-2); color: var(--ink); }
+    .qr-toggle-btn svg { width: 18px; height: 18px; }
+    .qr-toggle-btn .eye-off-icon { display: none; }
+    .qr-toggle-btn.hidden .eye-icon { display: none; }
+    .qr-toggle-btn.hidden .eye-off-icon { display: block; }
+
+    .qr-card.qr-hidden .qr-img-wrap { filter: blur(20px); pointer-events: none; user-select: none; }
+    .qr-card.qr-hidden .url-pill { filter: blur(8px); pointer-events: none; user-select: none; }
+    .qr-card.qr-hidden .meta-row { filter: blur(8px); pointer-events: none; user-select: none; }
+
+    .qr-card .qr-img-wrap {
+      background: var(--canvas);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin: 0 0 14px;
+      display: inline-block;
+      box-shadow: var(--shadow);
+    }
+    .qr-card .qr-img {
+      width: 220px; height: 220px;
+      display: block;
+    }
+    .qr-card .qr-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+    }
+    .url-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--primary-soft); color: var(--primary-ink);
+      padding: 8px 14px; border-radius: 999px;
+      font-family: ui-monospace, monospace; font-size: 13px;
+      font-weight: 600;
+      word-break: break-all;
+      cursor: pointer;
+      transition: background .15s, transform .05s;
+    }
+    .url-pill:hover { background: color-mix(in srgb, var(--primary-soft) 70%, var(--primary) 15%); }
+    .url-pill:active { transform: scale(.98); }
+    .url-pill svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .meta-row {
+      display: flex; flex-wrap: wrap; gap: 6px 12px;
+      justify-content: center;
+      color: var(--ink-2);
+      font-size: 12px;
+      margin-top: 12px;
+    }
+    .meta-row .dot { color: var(--ink-3); }
+    .meta-row code {
+      background: var(--surface);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
+    .file, .send-file-item, .file-msg {
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .file-content, .message-content {
+      overflow-wrap: break-word;
+      word-break: break-word;
+      max-width: 100%;
+    }
+    .file-name, .message-content pre {
+      max-width: 100%;
+    }
+
+    /* ---------- Cards ---------- */
+    .card {
+      background: var(--canvas);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      overflow-wrap: break-word;
+      word-break: break-word;
+      min-width: 0;
+    }
+    .card h2 {
+      font-size: 14px; margin: 0 0 16px; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--primary); font-weight: 700;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card h2 svg { width: 18px; height: 18px; color: var(--primary); }
+
+    /* ---------- Tab Pills ---------- */
+    .tab-pills {
+      display: flex; flex-wrap: wrap; gap: 4px;
+      padding: 4px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+    .tab-pill {
+      flex: 1;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 0;
+      background: transparent;
+      color: var(--ink-2);
+      font-weight: 600; font-size: 13px;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .tab-pill:hover:not(.active) { background: var(--surface-2); color: var(--ink); }
+    .tab-pill.active { background: var(--primary); color: #fff; }
+    .tab-pill svg { width: 15px; height: 15px; }
+    @media (max-width: 480px) { .tab-pill { padding: 9px 8px; font-size: 12px; } }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ---------- Forms ---------- */
+    .form-group { margin-bottom: 14px; }
+    .form-group label {
+      display: block;
+      font-size: 12px; font-weight: 600;
+      color: var(--ink-2);
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--ink);
+      font: inherit;
+      transition: border-color .15s, background .15s, box-shadow .15s;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      max-width: 100%;
+    }
+    .form-input::placeholder { color: var(--ink-3); }
+    .form-input:focus {
+      outline: 2px solid transparent;
+      border-color: var(--primary);
+      background: var(--canvas);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font: inherit;
+      color: var(--ink);
+      background: var(--surface);
+      resize: vertical;
+      transition: border-color .15s, background .15s, box-shadow .15s;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      overflow-x: hidden;
+      max-width: 100%;
+    }
+    textarea::placeholder { color: var(--ink-3); }
+    textarea:focus {
+      outline: 2px solid transparent;
+      border-color: var(--primary);
+      background: var(--canvas);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+
+    .drop {
+      border: 2px dashed var(--line);
+      border-radius: var(--radius);
+      padding: 24px 16px;
+      text-align: center;
+      background: var(--surface);
+      transition: border-color .15s, background .15s;
+      cursor: pointer;
+    }
+    .drop:hover, .drop.drag { border-color: var(--primary); background: var(--primary-soft); }
+    .drop p { margin: 4px 0; color: var(--ink-2); }
+    .drop .hint { font-size: 12px; color: var(--ink-3); }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      background: var(--primary); color: #fff;
+      border: 0;
+      border-radius: var(--radius-sm);
+      padding: 10px 18px;
+      font-weight: 600; font-size: 14px;
+      transition: background .15s, transform .05s, box-shadow .15s;
+    }
+    .btn:hover { background: var(--primary-ink); }
+    .btn:active { transform: translateY(1px); }
+    .btn.ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+    .btn.ghost:hover { background: var(--surface-2); }
+    .btn.danger { background: transparent; color: var(--danger); padding: 6px 10px; font-size: 12px; }
+    .btn.danger:hover { background: var(--danger-bg); }
+    .btn.success { background: var(--ok); color: #fff; }
+    .btn.success:hover { background: #228455; }
+    .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+    .btn.full { width: 100%; }
+
+    /* ---------- File lists ---------- */
+    .files, .send-preview { display: flex; flex-direction: column; gap: 8px; }
+    .file {
+      display: grid; grid-template-columns: 32px 1fr auto; gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      transition: background .15s, border-color .15s;
+      min-width: 0;
+    }
+    .file:hover { border-color: color-mix(in srgb, var(--primary) 30%, var(--line)); }
+    .file-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      background: var(--canvas); border: 1px solid var(--line); border-radius: 6px; color: var(--primary); }
+    .file-icon svg { width: 18px; height: 18px; }
+    .file .name { font-weight: 600; color: var(--ink); word-break: break-all; font-size: 14px; min-width: 0; }
+    .file .sub { color: var(--ink-3); font-size: 12px; margin-top: 2px; }
+    .file .actions { display: flex; gap: 4px; }
+
+    .send-file-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); cursor: default; }
+    .send-file-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+      color: var(--primary); flex-shrink: 0; }
+    .send-file-icon svg { width: 18px; height: 18px; }
+    .send-file-info { flex: 1; min-width: 0; }
+    .send-file-name { font-size: 13px; font-weight: 600; color: var(--ink);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .send-file-size { font-size: 11px; color: var(--ink-3); }
+    .send-file-remove { background: transparent; border: 0; color: var(--ink-3); cursor: pointer; padding: 4px;
+      border-radius: 4px; display: flex; align-items: center; }
+    .send-file-remove:hover { color: var(--danger); background: var(--danger-bg); }
+    .send-file-remove svg { width: 16px; height: 16px; }
+
+    .empty {
+      color: var(--ink-3); font-size: 13px;
+      padding: 24px 16px; text-align: center;
+      background: var(--surface);
+      border: 1px dashed var(--line);
+      border-radius: var(--radius-sm);
+    }
+    .empty.success {
+      color: var(--ok);
+      background: var(--ok-bg);
+      border: 1px solid color-mix(in srgb, var(--ok) 30%, transparent);
+      border-style: dashed;
+    }
+    .empty svg { width: 28px; height: 28px; opacity: .6; margin-bottom: 6px; }
+
+    /* ---------- Pills ---------- */
+    .pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 600;
+      background: var(--primary-soft); color: var(--primary-ink);
+    }
+    .pill.ok { background: var(--ok-bg); color: var(--ok); }
+    .pill.warn { background: var(--warn-bg); color: var(--warn); }
+    .pill svg { width: 12px; height: 12px; }
+
+    /* ---------- Toast ---------- */
+    .toast {
+      position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+      background: var(--ink); color: var(--canvas);
+      padding: 10px 18px; border-radius: 999px;
+      font-size: 13px; font-weight: 500;
+      opacity: 0;
+      transition: opacity .2s, transform .2s;
+      pointer-events: none; z-index: 100;
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    }
+    .toast.show { opacity: .95; transform: translateX(-50%) translateY(0); }
+    .toast.error { background: var(--danger); }
+    .toast.success { background: var(--ok); color: #fff; }
+
+    /* ---------- Group ---------- */
+    .group-messages {
+      max-height: 360px;
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .message-item {
+      background: var(--canvas);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--line);
+      min-width: 0;
+    }
+    .message-item.file-msg { border-left: 3px solid var(--primary); }
+    .message-meta {
+      font-size: 11px;
+      color: var(--ink-3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .message-sender { font-weight: 700; color: var(--primary); }
+    .message-content {
+      margin: 0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-family: inherit;
+      color: var(--ink);
+      font-size: 14px;
+      min-width: 0;
+    }
+
+    .receive-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .text-display {
+      background: var(--surface);
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--line);
+      position: relative;
+    }
+    .text-display pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      word-break: break-all;
+      font-family: ui-monospace, monospace;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* ---------- Docs ---------- */
+    .docs-section { margin-bottom: 28px; }
+    .docs-section h3 {
+      font-size: 18px; font-weight: 700;
+      color: var(--ink);
+      margin: 0 0 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .docs-section h3 svg { width: 20px; height: 20px; color: var(--primary); }
+    .docs-step {
+      display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start;
+    }
+    .docs-step-num {
+      flex-shrink: 0;
+      min-width: 24px; height: 24px;
+      padding: 0 6px;
+      border-radius: 12px;
+      background: var(--primary); color: #fff;
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .docs-step-content { flex: 1; min-width: 0; }
+    .docs-step-content p { margin: 0 0 4px; color: var(--ink-2); font-size: 14px; }
+    .docs-step-content p strong { color: var(--ink); }
+    .docs-step-content code {
+      background: var(--surface);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--primary-ink);
+      word-break: break-all;
+    }
+    .docs-info-box {
+      background: var(--primary-soft);
+      border-left: 3px solid var(--primary);
+      padding: 12px 16px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: 12px 0;
+    }
+    .docs-info-box p { margin: 0; color: var(--primary-ink); font-size: 13px; }
+    .docs-feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .docs-feature-item {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 14px 10px;
+      text-align: center;
+      transition: background .15s, border-color .15s;
+    }
+    .docs-feature-item:hover { border-color: var(--primary); background: var(--primary-soft); }
+    .docs-feature-item svg { width: 24px; height: 24px; color: var(--primary); margin-bottom: 6px; }
+    .docs-feature-item span { font-size: 12px; font-weight: 600; color: var(--ink-2); display: block; }
+
+    .docs-grid { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
+    @media (max-width: 920px) { .docs-grid { grid-template-columns: 1fr; } }
+
+    /* ---------- Skill (design-taste-frontend-v1): emoji-free flag glyphs ---------- */
+    .flag { width: 22px; height: 22px; display: inline-block; border-radius: 5px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+    #lang-flag { display: inline-flex; align-items: center; }
+    .lang-toggle .flag { width: 20px; height: 20px; }
+    .lang-select-btn .flag { width: 22px; height: 22px; }
+
+    @media (max-width: 480px) {
+      .wrap { padding: 0 16px; }
+      .home-grid { grid-template-columns: 1fr; }
+      .docs-grid { grid-template-columns: 1fr; }
+      .card { padding: 16px; }
+      .top-inner { padding: 12px 16px; }
+      .brand { margin-left: 0; }
+      .brand .title { display: block; font-size: 18px; line-height: 1.2; }
+      .brand .title .mobile-br { display: block; }
+      .brand .title em { display: inline; }
+      .brand .title .version { display: inline-block; margin-left: 4px; vertical-align: middle; font-size: 10px; }
+      .brand .sub { display: none; }
+      .header-icon-btn.donate .donate-text { display: none; }
+      .header-icon-btn.donate {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        justify-content: center;
+      }
+      .header-icon-btn.donate svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+  @media (max-width: 360px) {
+    .tab-pills { gap: 2px; padding: 3px; }
+    .tab-pill { padding: 8px 4px; font-size: 11px; gap: 4px; }
+    .tab-pill svg { width: 13px; height: 13px; }
+    .drop .hint .btn.ghost { padding: 4px 8px !important; font-size: 11px; }
+    .drop .hint { font-size: 11px; }
+    .drop p { font-size: 13px; }
+
+    /* ---------- Skill: motion layer (intensity 6) ---------- */
+    @keyframes hs-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    @keyframes hs-breathe { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.78); opacity: .5; } }
+    .qr-card, .card { animation: hs-rise .55s cubic-bezier(0.16,1,0.3,1) both; }
+    .home-grid .card { animation-delay: .08s; }
+    .file, .send-file-item { animation: hs-rise .4s cubic-bezier(0.16,1,0.3,1) both; }
+    .card:hover, .qr-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); transition: transform .2s cubic-bezier(0.16,1,0.3,1), box-shadow .2s; }
+    .file:hover, .send-file-item:hover, .docs-feature-item:hover { transform: translateY(-2px); }
+    .live-dot { width: 7px; height: 7px; border-radius: 999px; background: currentColor; display: inline-block; animation: hs-breathe 2.4s ease-in-out infinite; }
+  }
+  </style>
+</head>
+<body>
+<a href="#main" class="skip-link" data-i18n="skip_link">Skip to content</a>
+
+<header class="top">
+  <div class="wrap top-inner">
+    <div class="brand">
+      <img class="logo" src="static/logo.png" alt="Hour Share logo" />
+      <div>
+        <h1 class="title">Hour<br class="mobile-br"><em>Share</em> <span class="version">v1.0.0</span></h1>
+        <div class="sub" data-i18n="subtitle">Local Web Share via QR</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <a href="https://donate.curzy.dev" target="_blank" rel="noopener noreferrer" class="header-icon-btn donate" aria-label="Donate" title="Donate">
+        <span class="donate-text" data-i18n="donate_btn">Donate</span>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">
+        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div style="position:relative">
+        <button class="lang-toggle" id="lang-btn" aria-label="Select language" title="Select language">
+          <span id="lang-flag" aria-hidden="true"></span>
+        </button>
+        <div class="dropdown-menu" id="lang-menu" style="min-width: 48px; padding: 4px;">
+          <button class="dropdown-item lang-select-btn" data-lang="en" style="justify-content: center; font-size: 18px; padding: 8px;"></button>
+          <button class="dropdown-item lang-select-btn" data-lang="id" style="justify-content: center; font-size: 18px; padding: 8px;"></button>
+          <button class="dropdown-item lang-select-btn" data-lang="cn" style="justify-content: center; font-size: 18px; padding: 8px;"></button>
+          <button class="dropdown-item lang-select-btn" data-lang="jp" style="justify-content: center; font-size: 18px; padding: 8px;"></button>
+        </div>
+      </div>
+      <div style="position:relative">
+        <button class="option-btn" id="option-btn" aria-label="More options" title="More options">⋮</button>
+        <div class="dropdown-menu" id="option-menu">
+          <a href="https://hour-share.curzy.dev" target="_blank" rel="noopener noreferrer" class="dropdown-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Website
+          </a>
+          <a href="https://github.com/Curzyori/hour-share" target="_blank" rel="noopener noreferrer" class="dropdown-item">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            GitHub
+          </a>
+          <a href="#" id="docs-link" class="dropdown-item" target="_blank" rel="noopener noreferrer" aria-label="Documentation" title="Documentation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Docs
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+
+    <!-- HOME PANEL: QR + Tabbed Actions -->
+    <div class="nav-panel active" id="panel-home" role="tabpanel" aria-labelledby="nav-home">
+      <div class="home-grid">
+        <!-- QR Sidebar -->
+        <aside class="card qr-card">
+          <div class="qr-header">
+            <div class="qr-label" data-i18n="qr_title">QR Connect</div>
+            <button class="qr-toggle-btn" id="qr-toggle" aria-label="Sembunyikan/Tampilkan QR" aria-pressed="false" title="Sembunyikan/Tampilkan">
+              <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+          <div class="qr-img-wrap">
+            <img class="qr-img" id="qr-img" src="/api/qr" alt="QR code untuk koneksi ke server HourShare" />
+          </div>
+          <div>
+            <span class="url-pill" id="base-url" role="button" tabindex="0" aria-label="Click to copy URL" title="Click to copy">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span id="base-url-text">{{ base_url }}</span>
+            </span>
+          </div>
+          <div class="meta-row">
+            <span><span data-i18n="ip">IP</span>: <code id="meta-ip">{{ local_ip }}</code></span>
+            <span class="dot">·</span>
+            <span><span data-i18n="port">Port</span>: <code>{{ port }}</code></span>
+            <span class="dot">·</span>
+            <span class="pill ok">
+              <span class="live-dot" aria-hidden="true"></span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              <span data-i18n="live">LIVE</span>
+            </span>
+          </div>
+        </aside>
+
+        <!-- Tabbed Actions Card -->
+        <div class="card">
+          <div class="tab-pills" role="tablist" aria-label="Panel selection">
+            <button class="tab-pill active" data-tab="send" role="tab" aria-selected="true" aria-controls="panel-send" id="tab-send">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+              <span data-i18n="tab_send">Send</span>
+            </button>
+            <button class="tab-pill" data-tab="receive" role="tab" aria-selected="false" aria-controls="panel-receive" id="tab-receive">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7 7 7-7"/></svg>
+              <span data-i18n="tab_receive">Receive</span>
+            </button>
+            <button class="tab-pill" data-tab="group" role="tab" aria-selected="false" aria-controls="panel-group" id="tab-group">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span data-i18n="tab_group">Group</span>
+            </button>
+          </div>
+
+          <!-- SEND -->
+          <div class="tab-panel active" id="panel-send" role="tabpanel" aria-labelledby="tab-send">
+            <h2 data-i18n="upload_title">Send Files / Text</h2>
+            <div class="form-group">
+              <div class="drop" id="drop" tabindex="0" role="button" aria-label="Drop files here or click to browse">
+                <p><strong data-i18n="drag_drop">Tarik & lepas file di sini</strong></p>
+                <p class="hint">
+                  <span data-i18n="or">atau</span>
+                  <span class="btn ghost" style="margin: 0 6px; padding: 6px 12px; cursor: pointer; display: inline-flex;">
+                    <span data-i18n="choose_file">Pilih File</span>
+                  </span>
+                  <span data-i18n="max_size">(max {{ max_file_mb }} MB)</span>
+                </p>
+                <input id="file-input" type="file" multiple hidden />
+              </div>
+              <div id="upload-status" class="hint" style="margin-top:8px;color:var(--ink-3)"></div>
+              <div id="send-preview-list" class="send-preview" style="display:none; margin-top:10px;"></div>
+            </div>
+            <div class="form-group">
+              <label for="text-input" data-i18n="text_label">Teks Share</label>
+              <textarea id="text-input" data-i18n-placeholder="placeholder_text" placeholder="Ketik atau paste teks share di sini..."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="send-password" data-i18n="password_label">Set Password Proteksi (Wajib)</label>
+              <input type="password" id="send-password" class="form-input" data-i18n-placeholder="placeholder_send_pass" placeholder="Masukkan password untuk bundle ini..." required />
+            </div>
+            <button class="btn full" id="send-submit-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 19-7z"/></svg>
+              <span data-i18n="send_bundle">SEND BUNDLE</span>
+            </button>
+          </div>
+
+          <!-- RECEIVE -->
+          <div class="tab-panel" id="panel-receive" role="tabpanel" aria-labelledby="tab-receive">
+            <h2>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7 7 7-7"/></svg>
+              <span data-i18n="receive_title">Receive Files / Text</span>
+            </h2>
+            <div id="receive-auth-section">
+              <p class="hint" style="margin-top: 0;" data-i18n="receive_hint">Masukkan password bundle untuk mengunduh file atau menyalin teks.</p>
+              <div class="form-group">
+                <label for="receive-password" data-i18n="password_label">Password Bundle</label>
+                <input type="password" id="receive-password" class="form-input" data-i18n-placeholder="placeholder_receive_pass" placeholder="Ketik password bundle di sini..." />
+              </div>
+              <button class="btn success full" id="receive-submit-btn" data-i18n="open_bundle">Buka Bundle</button>
+            </div>
+            <div id="receive-content-section" style="display: none;">
+              <div class="receive-header">
+                <span class="pill warn" id="receive-expire-timer">--:--</span>
+                <button class="btn danger" id="receive-lock-btn" data-i18n="lock">Kunci Kembali</button>
+              </div>
+              <div class="form-group" id="receive-text-wrapper" style="display: none;">
+                <label data-i18n="stored_text">Teks Tersimpan</label>
+                <div class="text-display">
+                  <pre id="receive-text-content"></pre>
+                  <button class="btn ghost" id="receive-text-copy-btn" style="position: absolute; right: 8px; top: 8px; padding: 4px 10px; font-size: 12px;" data-i18n="copy">Copy</button>
+                </div>
+              </div>
+              <div class="form-group" id="receive-files-wrapper" style="display: none;">
+                <label data-i18n="file_list">Daftar File</label>
+                <div class="files" id="receive-files-list"></div>
+              </div>
+              <button class="btn full" id="receive-download-all-btn" style="margin-top: 12px; display: none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                <span data-i18n="download_all">Unduh Semua File</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- GROUP -->
+          <div class="tab-panel" id="panel-group" role="tabpanel" aria-labelledby="tab-group">
+            <h2>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span data-i18n="group_title">Group File Share</span>
+            </h2>
+            <div id="group-join-section">
+              <div class="form-group">
+                <label for="group-name-input" data-i18n="group_name">Nama Group</label>
+                <input type="text" id="group-name-input" class="form-input" data-i18n-placeholder="placeholder_group_name" placeholder="Masukkan nama grup..." />
+              </div>
+              <div class="form-group">
+                <label for="group-password-input" data-i18n="group_password">Password Group</label>
+                <input type="password" id="group-password-input" class="form-input" data-i18n-placeholder="placeholder_group_pass" placeholder="Masukkan password grup..." />
+              </div>
+              <button class="btn success full" id="group-join-btn" data-i18n="join_group">Masuk / Buat Group</button>
+            </div>
+            <div id="group-active-section" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 id="group-title-label" style="font-size: 15px; margin: 0; font-weight: 700;">Group: <span style="color: var(--primary)"></span></h3>
+                <button class="btn danger" id="group-leave-btn" data-i18n="leave">Leave</button>
+              </div>
+              <div class="group-messages" id="group-messages-list" role="log" aria-live="polite">
+                <div class="empty success" data-i18n="group_empty">Belum ada aktivitas — share sesuatu ke group.</div>
+              </div>
+              <div class="form-group">
+                <label for="group-sender-name" data-i18n="sender_name">Nama Pengirim</label>
+                <input type="text" id="group-sender-name" class="form-input" data-i18n-placeholder="placeholder_sender_name" placeholder="Nama Anda (Opsional)..." value="User" />
+              </div>
+              <div class="form-group">
+                <label for="group-text-input" data-i18n="text_label">Teks Share</label>
+                <textarea id="group-text-input" data-i18n-placeholder="placeholder_group_text" placeholder="Ketik pesan atau teks share ke grup..."></textarea>
+              </div>
+              <div class="form-group">
+                <label data-i18n="file_upload">Upload File</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <input type="file" id="group-file-input" multiple hidden />
+                  <button class="btn ghost" type="button" id="group-file-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <span data-i18n="choose_file">Pilih File</span>
+                  </button>
+                  <span id="group-file-status" class="hint" style="color: var(--ink-3); font-size: 12px;"></span>
+                </div>
+              </div>
+              <button class="btn full" id="group-send-btn" data-i18n="send_to_group">Kirim ke Group</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  // ---------- I18N ----------
+  const I18N = {
+    id: {
+      subtitle: "Local Web Share via QR",
+      tab_send: "Send", tab_receive: "Receive", tab_group: "Group",
+      qr_title: "QR Connect", ip: "IP", port: "Port", live: "LIVE",
+      upload_title: "Send Files / Text",
+      drag_drop: "Tarik & lepas file di sini",
+      or: "atau", choose_file: "Pilih File",
+      text_label: "Teks Share", password_label: "Password (Wajib)",
+      send_bundle: "KIRIM BUNDLE",
+      receive_title: "Receive Files / Text",
+      receive_hint: "Masukkan password bundle untuk membuka file/teks.",
+      open_bundle: "Buka Bundle", lock: "Kunci", copy: "Salin",
+      stored_text: "Teks Tersimpan", file_list: "Daftar File",
+      download_all: "Unduh Semua File",
+      group_title: "Group File Share",
+      group_name: "Nama Group", group_password: "Password Group",
+      join_group: "Masuk / Buat Group", leave: "Keluar",
+      group_empty: "Belum ada aktivitas — share sesuatu ke group.",
+      sender_name: "Nama Pengirim", file_upload: "Upload File",
+      send_to_group: "Kirim ke Group",
+      copied: "Disalin!", success: "Berhasil!", error: "Terjadi kesalahan!",
+      placeholder_text: "Ketik atau paste teks share di sini...",
+      placeholder_send_pass: "Masukkan password untuk bundle ini...",
+      placeholder_receive_pass: "Ketik password bundle di sini...",
+      placeholder_group_name: "Masukkan nama grup...",
+      placeholder_group_pass: "Masukkan password grup...",
+      placeholder_sender_name: "Nama Anda (Opsional)...",
+      placeholder_group_text: "Ketik pesan atau teks share ke grup...",
+      skip_link: "Lewati ke konten",
+      donate_btn: "Donasi",
+    },
+    en: {
+      subtitle: "Local Web Share via QR",
+      tab_send: "Send", tab_receive: "Receive", tab_group: "Group",
+      qr_title: "QR Connect", ip: "IP", port: "Port", live: "LIVE",
+      upload_title: "Send Files / Text",
+      drag_drop: "Drag & drop files here",
+      or: "or", choose_file: "Choose File",
+      text_label: "Text Share", password_label: "Password (Required)",
+      send_bundle: "SEND BUNDLE",
+      receive_title: "Receive Files / Text",
+      receive_hint: "Enter bundle password to unlock files or text.",
+      open_bundle: "Open Bundle", lock: "Lock", copy: "Copy",
+      stored_text: "Stored Text", file_list: "File List",
+      download_all: "Download All Files",
+      group_title: "Group File Share",
+      group_name: "Group Name", group_password: "Group Password",
+      join_group: "Join / Create Group", leave: "Leave",
+      group_empty: "No activity yet — share something to the group.",
+      sender_name: "Sender Name", file_upload: "Upload File",
+      send_to_group: "Send to Group",
+      copied: "Copied!", success: "Success!", error: "An error occurred!",
+      placeholder_text: "Type or paste text to share here...",
+      placeholder_send_pass: "Enter password for this bundle...",
+      placeholder_receive_pass: "Type bundle password here...",
+      placeholder_group_name: "Enter group name...",
+      placeholder_group_pass: "Enter group password...",
+      placeholder_sender_name: "Your name (Optional)...",
+      placeholder_group_text: "Type message or text to share to group...",
+      skip_link: "Skip to content",
+      donate_btn: "Donate",
+    },
+    cn: {
+      subtitle: "通过二维码在本地网络共享文件/文本",
+      tab_send: "发送", tab_receive: "接收", tab_group: "群组",
+      qr_title: "二维码连接", ip: "IP", port: "端口", live: "在线",
+      upload_title: "发送文件 / 文本",
+      drag_drop: "拖拽文件到这里",
+      or: "或", choose_file: "选择文件",
+      text_label: "共享文本", password_label: "密码 (必填)",
+      send_bundle: "发送文件包",
+      receive_title: "接收文件 / 文本",
+      receive_hint: "输入密码解锁文件或文本。",
+      open_bundle: "打开文件包", lock: "锁", copy: "复制",
+      stored_text: "保存的文本", file_list: "文件列表",
+      download_all: "下载所有文件",
+      group_title: "群组文件共享",
+      group_name: "群组名称", group_password: "群组密码",
+      join_group: "加入 / 创建群组", leave: "离开",
+      group_empty: "暂无活动 — 分享一些内容到群组。",
+      sender_name: "发送者姓名", file_upload: "上传文件",
+      send_to_group: "发送到群组",
+      copied: "已复制！", success: "成功！", error: "发生错误！",
+      placeholder_text: "在此输入或粘贴要共享的文本...",
+      placeholder_send_pass: "输入此包的密码...",
+      placeholder_receive_pass: "在此输入包密码...",
+      placeholder_group_name: "输入群组名称...",
+      placeholder_group_pass: "输入群组密码...",
+      placeholder_sender_name: "您的名字 (选填)...",
+      placeholder_group_text: "输入要分享到群组的消息或文本...",
+      skip_link: "跳过内容",
+      donate_btn: "捐赠",
+    },
+    jp: {
+      subtitle: "QRコードを介したローカルWeb共有",
+      tab_send: "送信", tab_receive: "受信", tab_group: "グループ",
+      qr_title: "QR接続", ip: "IP", port: "ポート", live: "ライブ",
+      upload_title: "ファイル / テキスト送信",
+      drag_drop: "ここにファイルをドラッグ＆ドロップ",
+      or: "または", choose_file: "ファイルを選択",
+      text_label: "共有テキスト", password_label: "パスワード (必須)",
+      send_bundle: "バンドル送信",
+      receive_title: "ファイル / テキスト受信",
+      receive_hint: "パスワードを入力してバンドルを解除します。",
+      open_bundle: "バンドルを開く", lock: "ロック", copy: "コピー",
+      stored_text: "保存されたテキスト", file_list: "ファイルリスト",
+      download_all: "すべてのファイルをダウンロード",
+      group_title: "グループファイル共有",
+      group_name: "グループ名", group_password: "グループパスワード",
+      join_group: "グループに参加 / 作成", leave: "退出",
+      group_empty: "アクティビティがありません — グループに共有してください。",
+      sender_name: "送信者名", file_upload: "アップロード",
+      send_to_group: "グループへ送信",
+      copied: "コピーしました！", success: "成功しました！", error: "エラーが発生しました！",
+      placeholder_text: "ここに共有するテキストを入力または貼り付け...",
+      placeholder_send_pass: "このバンドルのパスワードを入力...",
+      placeholder_receive_pass: "ここにバンドルのパスワードを入力...",
+      placeholder_group_name: "グループ名を入力...",
+      placeholder_group_pass: "グループのパスワードを入力...",
+      placeholder_sender_name: "お名前 (任意)...",
+      placeholder_group_text: "グループに共有するメッセージまたはテキストを入力...",
+      skip_link: "コンテンツをスキップ",
+      donate_btn: "寄付",
+    },
+  };
+
+  const MAX_FILE_MB = {{ max_file_mb }};
+  const MAX_SIZE_ID = "(maks {{ max_file_mb }} MB)";
+  const MAX_SIZE_EN = "(max {{ max_file_mb }} MB)";
+  let hsFlagSeq = 0;
+  function langFlagSvg(code) {
+    // ponytail: module-level counter → unik per call, cegah duplikat clipPath id saat render 5x
+    const uid = "cl" + (hsFlagSeq++);
+    const clip = (id) => `<defs><clipPath id="${id}"><rect width="24" height="24" rx="5"/></clipPath></defs>`;
+    const F = {
+      en: `<svg class="flag" viewBox="0 0 24 24" aria-hidden="true">${clip(uid)}<g clip-path="url(#${uid})"><rect width="24" height="24" fill="#fff"/><g fill="#B22234"><rect y="0" width="24" height="1.85"/><rect y="3.69" width="24" height="1.85"/><rect y="7.38" width="24" height="1.85"/><rect y="11.08" width="24" height="1.85"/><rect y="14.77" width="24" height="1.85"/><rect y="18.46" width="24" height="1.85"/></g><rect width="11" height="13" fill="#3C3B6E"/><g fill="#fff"><circle cx="2" cy="2.2" r=".55"/><circle cx="5" cy="2.2" r=".55"/><circle cx="8" cy="2.2" r=".55"/><circle cx="2" cy="4.6" r=".55"/><circle cx="5" cy="4.6" r=".55"/><circle cx="8" cy="4.6" r=".55"/><circle cx="3.5" cy="7" r=".55"/><circle cx="6.5" cy="7" r=".55"/></g></g></svg>`,
+      id: `<svg class="flag" viewBox="0 0 24 24" aria-hidden="true">${clip(uid)}<g clip-path="url(#${uid})"><rect width="24" height="12" fill="#CE1126"/><rect y="12" width="24" height="12" fill="#fff"/></g></svg>`,
+      cn: `<svg class="flag" viewBox="0 0 24 24" aria-hidden="true">${clip(uid)}<g clip-path="url(#${uid})"><rect width="24" height="24" fill="#DE2910"/><path d="M3.2 6.4l.7 2.1 2.1.7-2.1.7-.7 2.1-.7-2.1-2.1-.7 2.1-.7z" fill="#FFDE00"/><g fill="#FFDE00"><circle cx="9" cy="4.2" r=".7"/><circle cx="10.6" cy="6" r=".7"/><circle cx="10.6" cy="8.4" r=".7"/><circle cx="9" cy="10.4" r=".7"/></g></g></svg>`,
+      jp: `<svg class="flag" viewBox="0 0 24 24" aria-hidden="true">${clip(uid)}<g clip-path="url(#${uid})"><rect width="24" height="24" fill="#fff"/><circle cx="12" cy="12" r="7" fill="#BC002D"/></g></svg>`,
+    };
+    return F[code] || F.id;
+  }
+
+  let currentLang = localStorage.getItem("lang") || "id";
+  if (!["en","id","cn","jp"].includes(currentLang)) currentLang = "id";
+
+  function setupDocsLink() {
+    const link = document.getElementById("docs-link");
+    if (link) link.href = "https://hour-share.curzy.dev/" + currentLang + "/docs";
+  }
+
+  function t(key) {
+    const dict = I18N[currentLang] || I18N.id;
+    return dict[key] || I18N.id[key] || key;
+  }
+
+  function applyLang() {
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      // max_size is server-rendered with unit; rewrite client-side per language
+      if (key === "max_size") { el.textContent = currentLang === "en" ? MAX_SIZE_EN : MAX_SIZE_ID; return; }
+      el.textContent = t(key);
+    });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+      const key = el.getAttribute("data-i18n-placeholder");
+      el.setAttribute("placeholder", t(key));
+    });
+    document.getElementById("lang-flag").innerHTML = langFlagSvg(currentLang);
+    setupDocsLink();
+    document.documentElement.lang = currentLang;
+  }
+
+  // ---------- Lang Dropdown ----------
+  document.getElementById("lang-btn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.getElementById("lang-menu").classList.toggle("open");
+    document.getElementById("option-menu").classList.remove("open");
+  });
+
+  document.querySelectorAll(".lang-select-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      currentLang = btn.dataset.lang;
+      localStorage.setItem("lang", currentLang);
+      applyLang();
+      document.getElementById("lang-menu").classList.remove("open");
+    });
+  });
+  document.querySelectorAll(".lang-select-btn").forEach(btn => {
+    btn.innerHTML = langFlagSvg(btn.dataset.lang);
+  });
+
+  // ---------- Option Dropdown ----------
+  document.getElementById("option-btn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.getElementById("option-menu").classList.toggle("open");
+    document.getElementById("lang-menu").classList.remove("open");
+  });
+  document.addEventListener("click", () => {
+    document.getElementById("option-menu").classList.remove("open");
+    document.getElementById("lang-menu").classList.remove("open");
+  });
+
+  // ---------- QR Toggle ----------
+  document.getElementById("qr-toggle").addEventListener("click", () => {
+    const btn = document.getElementById("qr-toggle");
+    const card = btn.closest(".qr-card");
+    const hidden = btn.classList.toggle("hidden");
+    card.classList.toggle("qr-hidden", hidden);
+    btn.setAttribute("aria-pressed", hidden ? "true" : "false");
+    btn.setAttribute("aria-label", hidden ? "Tampilkan QR" : "Sembunyikan QR");
+  });
+
+  // Default hide QR on mobile (screen <= 920px) at startup
+  if (window.innerWidth <= 920) {
+    const btn = document.getElementById("qr-toggle");
+    const card = btn.closest(".qr-card");
+    btn.classList.add("hidden");
+    card.classList.add("qr-hidden");
+    btn.setAttribute("aria-pressed", "true");
+    btn.setAttribute("aria-label", "Tampilkan QR");
+  }
+
+  // ---------- Toast ----------
+  const toast = document.getElementById("toast");
+  let toastTimer = null;
+  function notify(msg, type) {
+    toast.textContent = msg;
+    toast.className = "toast show" + (type ? " " + type : "");
+    clearTimeout(toastTimer);
+    if (document.hidden) return;
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && toast.classList.contains("show")) {
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+  });
+
+  // ---------- URL Pill Copy ----------
+  const urlPill = document.getElementById("base-url");
+  const urlText = document.getElementById("base-url-text");
+  function copyUrl() {
+    const url = urlText.textContent.trim();
+    navigator.clipboard.writeText(url).then(
+      () => notify(t("copied"), "success"),
+      () => notify("Copy failed", "error")
+    );
+  }
+  urlPill.addEventListener("click", copyUrl);
+  urlPill.addEventListener("keypress", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); copyUrl(); }
+  });
+
+  // ---------- Nav + Tab switching ----------
+  document.querySelectorAll(".nav-pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const nav = btn.dataset.nav;
+      document.querySelectorAll(".nav-pill").forEach(p => { p.classList.remove("active"); p.setAttribute("aria-selected", "false"); });
+      btn.classList.add("active"); btn.setAttribute("aria-selected", "true");
+      document.querySelectorAll(".nav-panel").forEach(p => p.classList.remove("active"));
+      document.getElementById("panel-" + nav).classList.add("active");
+    });
+  });
+
+  document.querySelectorAll(".tab-pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll(".tab-pill").forEach(p => { p.classList.remove("active"); p.setAttribute("aria-selected", "false"); });
+      btn.classList.add("active"); btn.setAttribute("aria-selected", "true");
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+      document.getElementById("panel-" + tab).classList.add("active");
+    });
+  });
+
+  // ---------- File icon (SVG) ----------
+  function fileIconSvg(ext) {
+    const w = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">`;
+    const f = `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>`;
+    const e = `</svg>`;
+    const ICONS = {
+      apk: `${w}<rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>${e}`,
+      pdf: `${w}${f}<line x1="9" y1="9" x2="10" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>${e}`,
+      doc: `${w}${f}<line x1="9" y1="9" x2="10" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>${e}`,
+      docx: `${w}${f}<line x1="9" y1="9" x2="10" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>${e}`,
+      xls: `${w}${f}<line x1="9" y1="9" x2="10" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>${e}`,
+      xlsx: `${w}${f}<line x1="9" y1="9" x2="10" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>${e}`,
+      ppt: `${w}${f}<line x1="9" y1="9" x2="10" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>${e}`,
+      pptx: `${w}${f}<line x1="9" y1="9" x2="10" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>${e}`,
+      zip: `${w}<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>${e}`,
+      rar: `${w}<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>${e}`,
+      "7z": `${w}<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>${e}`,
+      tar: `${w}<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>${e}`,
+      gz: `${w}<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/>${e}`,
+      jpg: `${w}<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>${e}`,
+      jpeg: `${w}<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>${e}`,
+      png: `${w}<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>${e}`,
+      gif: `${w}<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>${e}`,
+      webp: `${w}<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>${e}`,
+      svg: `${w}<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>${e}`,
+      mp3: `${w}<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>${e}`,
+      wav: `${w}<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>${e}`,
+      ogg: `${w}<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>${e}`,
+      flac: `${w}<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>${e}`,
+      mp4: `${w}<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>${e}`,
+      mkv: `${w}<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>${e}`,
+      avi: `${w}<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>${e}`,
+      mov: `${w}<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>${e}`,
+      txt: `${w}${f}${e}`,
+      md: `${w}${f}<line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/>${e}`,
+      exe: `${w}${f}<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>${e}`,
+      msi: `${w}${f}<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>${e}`,
+      html: `${w}${f}<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>${e}`,
+      css: `${w}${f}<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>${e}`,
+      js: `${w}${f}<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>${e}`,
+      json: `${w}${f}<line x1="9" y1="9" x2="10" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>${e}`,
+      xml: `${w}${f}<line x1="9" y1="9" x2="10" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>${e}`,
+    };
+    return ICONS[ext] || `${w}${f}${e}`;
+  }
+
+  function formatSize(b) {
+    if (b > 1024 * 1024) return (b / (1024 * 1024)).toFixed(1) + " MB";
+    if (b > 1024) return (b / 1024).toFixed(1) + " KB";
+    return b + " B";
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  // ---------- Send Panel ----------
+  let selectedFiles = [];
+  const drop = document.getElementById("drop");
+  const fileInput = document.getElementById("file-input");
+  const uploadStatus = document.getElementById("upload-status");
+  const previewList = document.getElementById("send-preview-list");
+
+  drop.addEventListener("click", () => fileInput.click());
+  drop.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } });
+  ["dragenter", "dragover", "dragleave", "drop"].forEach(evt => {
+    drop.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); });
+  });
+  ["dragenter", "dragover"].forEach(evt => drop.addEventListener(evt, () => drop.classList.add("drag")));
+  ["dragleave", "drop"].forEach(evt => drop.addEventListener(evt, () => drop.classList.remove("drag")));
+  drop.addEventListener("drop", (e) => {
+    selectedFiles = [...selectedFiles, ...(e.dataTransfer.files || [])];
+    renderSendPreview();
+  });
+  fileInput.addEventListener("change", () => {
+    selectedFiles = [...selectedFiles, ...fileInput.files];
+    renderSendPreview();
+    // Reset file input value so selecting the same file again triggers change
+    fileInput.value = "";
+  });
+
+  function removeFile(idx) {
+    selectedFiles = selectedFiles.filter((_, i) => i !== idx);
+    renderSendPreview();
+  }
+
+  function renderSendPreview() {
+    if (selectedFiles.length === 0) {
+      previewList.innerHTML = "";
+      previewList.style.display = "none";
+      uploadStatus.textContent = "";
+      return;
+    }
+    const totalSize = selectedFiles.reduce((a, f) => a + f.size, 0);
+    uploadStatus.textContent = `${selectedFiles.length} file · ${formatSize(totalSize)}`;
+    previewList.style.display = "block";
+    previewList.innerHTML = selectedFiles.map((f, i) => {
+      const ext = f.name.split(".").pop().toLowerCase();
+      return `
+        <div class="send-file-item">
+          <span class="send-file-icon">${fileIconSvg(ext)}</span>
+          <div class="send-file-info">
+            <div class="send-file-name">${escapeHtml(f.name)}</div>
+            <div class="send-file-size">${formatSize(f.size)}</div>
+          </div>
+          <button class="send-file-remove" data-idx="${i}" aria-label="Remove file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>`;
+    }).join("");
+    previewList.querySelectorAll(".send-file-remove").forEach(btn => {
+      btn.addEventListener("click", (e) => { e.stopPropagation(); removeFile(parseInt(btn.dataset.idx, 10)); });
+    });
+  }
+
+  document.getElementById("send-submit-btn").addEventListener("click", async () => {
+    const btn = document.getElementById("send-submit-btn");
+    const password = document.getElementById("send-password").value;
+    const textContent = document.getElementById("text-input").value.trim();
+
+    if (!password) { notify("Password wajib diisi!", "error"); return; }
+    if (!password || password.length < 4) { notify("Password minimal 4 karakter", "error"); return; }
+    if (selectedFiles.length === 0 && !textContent) { notify("Tambah file atau teks dulu", "error"); return; }
+    if (selectedFiles.some(f => f.size > MAX_FILE_MB * 1024 * 1024)) {
+      notify(`File max ${MAX_FILE_MB} MB`, "error"); return;
+    }
+
+    btn.disabled = true;
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="animation: spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-dasharray="40" stroke-dashoffset="20"/></svg> <span>Mengirim...</span>`;
+
+    const fd = new FormData();
+    fd.append("password", password);
+    fd.append("text", textContent);
+    selectedFiles.forEach(f => fd.append("files", f));
+
+    try {
+      const r = await fetch("/api/send", { method: "POST", body: fd });
+      const res = await r.json();
+      if (r.ok) {
+        notify(t("success") + " Bundle ID: " + res.bundle_id, "success");
+        document.getElementById("text-input").value = "";
+        document.getElementById("send-password").value = "";
+        selectedFiles = [];
+        renderSendPreview();
+      } else {
+        notify(res.error || t("error"), "error");
+      }
+    } catch (e) {
+      notify("Koneksi gagal!", "error");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+    }
+  });
+
+  // ---------- Receive Panel ----------
+  let expireInterval = null;
+  let activeBundleFiles = [];
+
+  document.getElementById("receive-submit-btn").addEventListener("click", async () => {
+    const btn = document.getElementById("receive-submit-btn");
+    const password = document.getElementById("receive-password").value;
+    if (!password) { notify("Masukkan password!", "error"); return; }
+
+    btn.disabled = true;
+    try {
+      const r = await fetch("/api/receive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password })
+      });
+      const res = await r.json();
+      if (r.ok) {
+        notify(t("success"), "success");
+        showBundleContent(res);
+      } else {
+        notify(res.error || "Password salah!", "error");
+      }
+    } catch (e) { notify("Koneksi gagal!", "error"); }
+    finally { btn.disabled = false; }
+  });
+
+  function showBundleContent(bundle) {
+    document.getElementById("receive-auth-section").style.display = "none";
+    document.getElementById("receive-content-section").style.display = "block";
+
+    const textWrapper = document.getElementById("receive-text-wrapper");
+    if (bundle.text) {
+      textWrapper.style.display = "block";
+      document.getElementById("receive-text-content").textContent = bundle.text;
+    } else { textWrapper.style.display = "none"; }
+
+    const filesWrapper = document.getElementById("receive-files-wrapper");
+    const filesList = document.getElementById("receive-files-list");
+    const downloadAllBtn = document.getElementById("receive-download-all-btn");
+    activeBundleFiles = bundle.files || [];
+
+    if (activeBundleFiles.length > 0) {
+      filesWrapper.style.display = "block";
+      downloadAllBtn.style.display = "block";
+      filesList.innerHTML = activeBundleFiles.map(f => {
+        const ext = f.name.split(".").pop().toLowerCase();
+        return `
+        <div class="file">
+          <div class="file-icon">${fileIconSvg(ext)}</div>
+          <div>
+            <div class="name">${escapeHtml(f.name)}</div>
+            <div class="sub">${escapeHtml(f.size)}</div>
+          </div>
+          <div class="actions">
+            <button class="btn ghost download-single-file" data-url="${f.url}" data-name="${escapeHtml(f.name)}">Unduh</button>
+          </div>
+        </div>`;
+      }).join("");
+      filesList.querySelectorAll(".download-single-file").forEach(btn => btn.addEventListener("click", () => downloadFile(btn.dataset.url, btn.dataset.name)));
+    } else {
+      filesWrapper.style.display = "none";
+      downloadAllBtn.style.display = "none";
+    }
+
+    let sisaDetik = bundle.expires_in_sec;
+    clearInterval(expireInterval);
+    const updateTimerUI = () => {
+      if (sisaDetik <= 0) { clearInterval(expireInterval); notify("Bundle expired!", "error"); lockBundle(); return; }
+      const m = Math.floor(sisaDetik / 60);
+      const s = sisaDetik % 60;
+      document.getElementById("receive-expire-timer").innerHTML =
+        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${m}:${s < 10 ? "0" : ""}${s}`;
+      sisaDetik--;
+    };
+    updateTimerUI();
+    expireInterval = setInterval(updateTimerUI, 1000);
+  }
+
+  function lockBundle() {
+    clearInterval(expireInterval);
+    document.getElementById("receive-auth-section").style.display = "block";
+    document.getElementById("receive-content-section").style.display = "none";
+    document.getElementById("receive-password").value = "";
+  }
+  document.getElementById("receive-lock-btn").addEventListener("click", lockBundle);
+
+  document.getElementById("receive-text-copy-btn").addEventListener("click", () => {
+    navigator.clipboard.writeText(document.getElementById("receive-text-content").textContent);
+    notify(t("copied"), "success");
+  });
+
+  async function downloadFile(url, name) {
+    try {
+      const resp = await fetch(url);
+      const blob = await resp.blob();
+      const objUrl = URL.createObjectURL(blob);
+      triggerDownload(objUrl, name);
+      URL.revokeObjectURL(objUrl);
+    } catch (e) {
+      triggerDownload(url, name);
+    }
+  }
+
+  function triggerDownload(href, name) {
+    const a = document.createElement("a");
+    a.href = href; a.download = name; a.target = "_blank";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+
+  document.getElementById("receive-download-all-btn").addEventListener("click", async () => {
+    const btn = document.getElementById("receive-download-all-btn");
+    btn.disabled = true;
+    for (let i = 0; i < activeBundleFiles.length; i++) {
+      const f = activeBundleFiles[i];
+      await downloadFile(f.url, f.name);
+      // small delay to avoid browser blocking multiple downloads
+      await new Promise(r => setTimeout(r, 300));
+    }
+    btn.disabled = false;
+    notify(activeBundleFiles.length + " file diunduh", "success");
+  });
+
+  // ---------- Group Panel ----------
+  let activeGroupName = null;
+  let groupPollInterval = null;
+  let groupFilesSelected = [];
+  const groupJoinSection = document.getElementById("group-join-section");
+  const groupActiveSection = document.getElementById("group-active-section");
+
+  document.getElementById("group-join-btn").addEventListener("click", async () => {
+    const name = document.getElementById("group-name-input").value.trim().toLowerCase();
+    const password = document.getElementById("group-password-input").value;
+    if (!name || !password) { notify("Isi Nama Grup & Password!", "error"); return; }
+    if (!/^[a-z0-9_-]{2,32}$/.test(name)) { notify("Nama grup: 2-32 char (a-z, 0-9, -, _)", "error"); return; }
+
+    try {
+      const r = await fetch("/api/group/join", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, password })
+      });
+      const res = await r.json();
+      if (r.ok) { notify(t("success"), "success"); startGroupDashboard(name); }
+      else { notify(res.error || t("error"), "error"); }
+    } catch (e) { notify("Koneksi gagal!", "error"); }
+  });
+
+  function startGroupDashboard(name) {
+    activeGroupName = name;
+    groupJoinSection.style.display = "none";
+    groupActiveSection.style.display = "block";
+    document.getElementById("group-title-label").innerHTML = `Group: <span style="color: var(--primary)">${escapeHtml(name.toUpperCase())}</span>`;
+    document.getElementById("group-text-input").value = "";
+    groupFilesSelected = [];
+    document.getElementById("group-file-status").textContent = "";
+    fetchGroupInfo();
+    clearInterval(groupPollInterval);
+    groupPollInterval = setInterval(fetchGroupInfo, 3000);
+  }
+
+  async function fetchGroupInfo() {
+    if (!activeGroupName) return;
+    try {
+      const r = await fetch(`/api/group/${activeGroupName}/info`);
+      const res = await r.json();
+      if (r.ok) renderGroupMessages(res.items || []);
+    } catch (e) {}
+  }
+
+  function renderGroupMessages(items) {
+    const container = document.getElementById("group-messages-list");
+    if (!items || items.length === 0) {
+      container.innerHTML = `<div class="empty success" data-i18n="group_empty">${t("group_empty")}</div>`;
+      return;
+    }
+    container.innerHTML = items.map(item => {
+      const m = Math.floor(item.expires_in_sec / 60);
+      const s = item.expires_in_sec % 60;
+      const timeStr = item.expires_in_sec > 0 ? `${m}:${s < 10 ? "0" : ""}${s}` : "Expired";
+      if (item.type === "text") {
+        return `
+          <div class="message-item">
+            <div class="message-meta">
+              <span class="message-sender">${escapeHtml(item.sender)}</span>
+              <span>${timeStr}</span>
+            </div>
+            <pre class="message-content">${escapeHtml(item.content)}</pre>
+          </div>`;
+      }
+      const ext = item.name.split(".").pop().toLowerCase();
+      return `
+        <div class="message-item file-msg">
+          <div class="message-meta">
+            <span class="message-sender">${escapeHtml(item.sender)}</span>
+            <span>${timeStr}</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="file-icon">${fileIconSvg(ext)}</div>
+            <div style="flex: 1; min-width: 0;">
+              <div class="name" style="font-size: 13px;">${escapeHtml(item.name)}</div>
+              <div class="sub">${escapeHtml(item.size || "")}</div>
+            </div>
+            <button class="btn ghost download-group-file" data-url="${item.url}" data-name="${escapeHtml(item.name)}" style="padding: 4px 10px; font-size: 12px;">Unduh</button>
+          </div>
+        </div>`;
+    }).join("");
+    container.querySelectorAll(".download-group-file").forEach(btn => {
+      btn.addEventListener("click", () => downloadFile(btn.dataset.url, btn.dataset.name));
+    });
+    // auto-scroll only if user near bottom
+    const nearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+    if (nearBottom) container.scrollTop = container.scrollHeight;
+  }
+
+  document.getElementById("group-file-btn").addEventListener("click", () => document.getElementById("group-file-input").click());
+  document.getElementById("group-file-input").addEventListener("change", (e) => {
+    groupFilesSelected = [...groupFilesSelected, ...e.target.files];
+    if (groupFilesSelected.length > 0) {
+      const total = groupFilesSelected.reduce((a, f) => a + f.size, 0);
+      document.getElementById("group-file-status").textContent = `${groupFilesSelected.length} file · ${formatSize(total)}`;
+    } else {
+      document.getElementById("group-file-status").textContent = "";
+    }
+    e.target.value = ""; // Reset so same file can be selected again
+  });
+
+  document.getElementById("group-send-btn").addEventListener("click", async () => {
+    const text = document.getElementById("group-text-input").value.trim();
+    const sender = document.getElementById("group-sender-name").value.trim() || "User";
+    if (!text && groupFilesSelected.length === 0) { notify("Masukkan teks atau file!", "error"); return; }
+    if (groupFilesSelected.some(f => f.size > MAX_FILE_MB * 1024 * 1024)) {
+      notify(`File max ${MAX_FILE_MB} MB`, "error"); return;
+    }
+
+    const fd = new FormData();
+    fd.append("sender", sender);
+    fd.append("text", text);
+    groupFilesSelected.forEach(f => fd.append("files", f));
+
+    try {
+      const r = await fetch(`/api/group/${activeGroupName}/send`, { method: "POST", body: fd });
+      if (r.ok) {
+        document.getElementById("group-text-input").value = "";
+        groupFilesSelected = [];
+        document.getElementById("group-file-input").value = "";
+        document.getElementById("group-file-status").textContent = "";
+        fetchGroupInfo();
+      } else { notify("Gagal mengirim!", "error"); }
+    } catch (e) { notify("Koneksi gagal!", "error"); }
+  });
+
+  document.getElementById("group-leave-btn").addEventListener("click", () => {
+    clearInterval(groupPollInterval);
+    activeGroupName = null;
+    groupJoinSection.style.display = "block";
+    groupActiveSection.style.display = "none";
+    document.getElementById("group-name-input").value = "";
+    document.getElementById("group-password-input").value = "";
+  });
+
+  // ---------- Theme ----------
+  const themeToggle = document.getElementById("theme-toggle");
+  const html = document.documentElement;
+  const savedTheme = localStorage.getItem("theme") || "dark";
+  if (savedTheme === "dark") { html.setAttribute("data-theme", "dark"); themeToggle.classList.add("dark"); }
+  themeToggle.addEventListener("click", () => {
+    const isDark = html.getAttribute("data-theme") === "dark";
+    if (isDark) {
+      html.removeAttribute("data-theme");
+      themeToggle.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    } else {
+      html.setAttribute("data-theme", "dark");
+      themeToggle.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    }
+  });
+
+  // ---------- Init ----------
+  try {
+    applyLang();
+  } catch (e) {
+    console.error("[HourShare] init failed:", e);
+  }
+</script>
+</body>
+</html>
