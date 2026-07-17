@@ -1,4 +1,8 @@
 <p align="center">
+  <img src="https://raw.githubusercontent.com/Curzyori/hour-share/main/images/desktop-preview.png" alt="Dashboard Desktop Hour Share" width="600"/>
+</p>
+
+<p align="center">
   <img src="https://raw.githubusercontent.com/Curzyori/hour-share/main/images/logo.png" alt="Logo Hour Share" width="120"/>
 </p>
 
@@ -90,6 +94,8 @@ Hour Share menyelesaikannya: jalankan CLI, scan QR, bagikan file atau teks insta
 
 ## Cara Pakai
 
+Install CLI global (disarankan):
+
 ```bash
 npm install -g hourshare
 hourshare
@@ -111,12 +117,13 @@ hourshare
 ```bash
 git clone https://github.com/Curzyori/hour-share.git
 cd hour-share
+pip install flask bcrypt qrcode[pil] pillow
 ```
 
 **Syarat:**
 - Node.js >= 18
-- Python 3.10+
-- pip packages: `flask`, `bcrypt`, `qrcode[pil]`, `pillow` (auto-install saat pertama jalan)
+- Python 3.10+ (Linux, macOS, Windows)
+- pip packages: `flask`, `bcrypt`, `qrcode[pil]`, `pillow`
 
 ---
 

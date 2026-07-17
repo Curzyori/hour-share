@@ -1,4 +1,8 @@
 <p align="center">
+  <img src="https://raw.githubusercontent.com/Curzyori/hour-share/main/images/desktop-preview.png" alt="Hour Share Desktop Dashboard" width="600"/>
+</p>
+
+<p align="center">
   <img src="https://raw.githubusercontent.com/Curzyori/hour-share/main/images/logo.png" alt="Hour Share Logo" width="120"/>
 </p>
 
@@ -90,6 +94,8 @@ Hour Share solves this: launch the CLI, scan the QR code, and share files or tex
 
 ## Quick Start
 
+Install the CLI globally (recommended):
+
 ```bash
 npm install -g hourshare
 hourshare
@@ -111,12 +117,13 @@ hourshare
 ```bash
 git clone https://github.com/Curzyori/hour-share.git
 cd hour-share
+pip install flask bcrypt qrcode[pil] pillow
 ```
 
 **Requirements:**
 - Node.js >= 18
-- Python 3.10+
-- pip packages: `flask`, `bcrypt`, `qrcode[pil]`, `pillow` (auto-installed on first run)
+- Python 3.10+ (Linux, macOS, Windows)
+- pip packages: `flask`, `bcrypt`, `qrcode[pil]`, `pillow`
 
 ---
 
