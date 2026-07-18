@@ -595,7 +595,7 @@ def print_banner(local_ip: str, port: int, shared_dir: Path):
     B = "\033[1m"
     D = "\033[2m"
     P = "\033[38;2;86;69;212m"  # #5645D4 primary
-    V = "1.0.0"
+    V = "1.0.2"
 
     print()
     print(P + "=" * 56 + C)

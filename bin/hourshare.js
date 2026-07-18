@@ -11,7 +11,7 @@ const os = require("os");
 const DATA_DIR = path.join(os.homedir(), ".hourshare");
 const PID_FILE = path.join(DATA_DIR, "pid");
 const INIT_DONE = path.join(DATA_DIR, ".init_done");
-const LOCAL_VERSION = "1.0.1";
+const LOCAL_VERSION = "1.0.2";
 const SERVER_SCRIPT = path.join(__dirname, "..", "server.py");
 const REQ_FILE = path.join(__dirname, "..", "requirements.txt");
 const DEFAULT_PORT = 10101;
@@ -88,17 +88,59 @@ function pyExe() {
     : "python3";
 }
 
+const LOG_FILE = path.join(DATA_DIR, "server.log");
+
 function startServer() {
-  if (isRunning()) return;
+  if (isRunning()) return true;
   ensureDataDir();
+  const logFd = fs.openSync(LOG_FILE, "a");
   const child = spawn(pyExe(), [SERVER_SCRIPT], {
-    stdio: "ignore",
+    stdio: ["ignore", logFd, logFd],
     detached: true,
     cwd: path.join(__dirname, ".."),
     env: { ...process.env, HOURSHARE_PORT: String(PORT) },
   });
   fs.writeFileSync(PID_FILE, String(child.pid));
   child.unref();
+  fs.closeSync(logFd);
+  return true;
+}
+
+// ponytail: busy-wait 2s max, good enough for a local Flask boot
+function waitForServer(timeoutMs = 2000) {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const check = () => {
+      const req = require("http").get(`http://127.0.0.1:${PORT}/`, (res) => {
+        res.resume();
+        resolve(true);
+      });
+      req.on("error", () => {
+        if (Date.now() - start > timeoutMs) {
+          resolve(false);
+        } else {
+          setTimeout(check, 200);
+        }
+      });
+      req.setTimeout(500, () => { req.destroy(); });
+    };
+    check();
+  });
+}
+
+function showServerError() {
+  let tail = "";
+  try { tail = fs.readFileSync(LOG_FILE, "utf-8").split("\n").slice(-15).join("\n"); } catch {}
+  console.log("");
+  console.log(D + "  Server failed to start!" + R);
+  if (tail.trim()) {
+    console.log(GY + "  Last log lines (" + LOG_FILE + "):" + R);
+    console.log(GY + tail + R);
+  } else {
+    console.log(GY + "  No log output. Check: python3 + pip deps (bcrypt, flask, qrcode)." + R);
+  }
+  // clean stale pid
+  try { fs.unlinkSync(PID_FILE); } catch {}
 }
 
 function stopServer() {
