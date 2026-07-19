@@ -19,6 +19,7 @@
 
 [![Stars](https://img.shields.io/github/stars/Curzyori/hour-share?style=for-the-badge&color=374151)](https://github.com/Curzyori/hour-share)
 [![Forks](https://img.shields.io/github/forks/Curzyori/hour-share?style=for-the-badge&color=374151)](https://github.com/Curzyori/hour-share/network/members)
+[![Downloads](https://img.shields.io/npm/dw/hourshare?style=for-the-badge&color=374151)](https://www.npmjs.com/package/hourshare)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Python%20%7C%20Node.js%20%7C%20Cross--platform-black?style=for-the-badge)](#)
 
@@ -102,8 +103,22 @@ hourshare
 ```
 
 1. Run `hourshare` in your terminal.
-2. Select **Start** from the menu.
-3. Open the displayed URL in your browser on the same device, or scan the QR code from your phone.
+2. Select **Start** from the menu:
+
+```text
+========================================
+  Hour Share (v1.0.2)
+  🚀 Server: http://localhost:10101
+========================================
+ ★ Start (Open in Browser)           ○ Stopped
+ ☆ Auto Start (Disable)           
+ ☆ Check Update (Internet Require)
+ ☆ Stop                           
+ ☆ Exit                           
+  ↑↓ navigate · Enter select · Esc/Ctrl+C exit
+```
+
+3. Open the displayed local URL (like `http://localhost:10101` or your local IP) in your browser on the same device, or scan the QR code from your phone.
 4. Enter a password and share files or text. To receive, enter the same password.
 
 **Auto Start:** Select **Auto Start** from the menu to launch the server at login.

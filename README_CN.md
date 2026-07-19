@@ -19,6 +19,7 @@
 
 [![Stars](https://img.shields.io/github/stars/Curzyori/hour-share?style=for-the-badge&color=374151)](https://github.com/Curzyori/hour-share)
 [![Forks](https://img.shields.io/github/forks/Curzyori/hour-share?style=for-the-badge&color=374151)](https://github.com/Curzyori/hour-share/network/members)
+[![Downloads](https://img.shields.io/npm/dw/hourshare?style=for-the-badge&color=374151)](https://www.npmjs.com/package/hourshare)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Python%20%7C%20Node.js%20%7C%20Cross--platform-black?style=for-the-badge)](#)
 
@@ -102,8 +103,22 @@ hourshare
 ```
 
 1. 在终端运行 `hourshare`。
-2. 从菜单中选择 **Start**。
-3. 在同一设备的浏览器中打开显示的 URL，或用手机扫描二维码。
+2. 从菜单中选择 **Start**：
+
+```text
+========================================
+  Hour Share (v1.0.2)
+  🚀 Server: http://localhost:10101
+========================================
+ ★ Start (Open in Browser)           ○ Stopped
+ ☆ Auto Start (Disable)           
+ ☆ Check Update (Internet Require)
+ ☆ Stop                           
+ ☆ Exit                           
+  ↑↓ navigate · Enter select · Esc/Ctrl+C exit
+```
+
+3. 在同一设备的浏览器中打开显示的本地 URL（如 `http://localhost:10101` 或本地 IP），或用手机扫描二维码。
 4. 输入密码并共享文件或文本。要接收，请输入相同密码。
 
 **自动启动：** 从菜单中选择 **Auto Start** 可在登录时启动服务器。

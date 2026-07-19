@@ -19,6 +19,7 @@
 
 [![Stars](https://img.shields.io/github/stars/Curzyori/hour-share?style=for-the-badge&color=374151)](https://github.com/Curzyori/hour-share)
 [![Forks](https://img.shields.io/github/forks/Curzyori/hour-share?style=for-the-badge&color=374151)](https://github.com/Curzyori/hour-share/network/members)
+[![Downloads](https://img.shields.io/npm/dw/hourshare?style=for-the-badge&color=374151)](https://www.npmjs.com/package/hourshare)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Python%20%7C%20Node.js%20%7C%20Cross--platform-black?style=for-the-badge)](#)
 
@@ -102,8 +103,22 @@ hourshare
 ```
 
 1. Jalankan `hourshare` di terminal.
-2. Pilih **Start** dari menu.
-3. Buka URL yang tampil di browser perangkat yang sama, atau scan QR dari HP.
+2. Pilih **Start** dari menu:
+
+```text
+========================================
+  Hour Share (v1.0.2)
+  🚀 Server: http://localhost:10101
+========================================
+ ★ Start (Open in Browser)           ○ Stopped
+ ☆ Auto Start (Disable)           
+ ☆ Check Update (Internet Require)
+ ☆ Stop                           
+ ☆ Exit                           
+  ↑↓ navigate · Enter select · Esc/Ctrl+C exit
+```
+
+3. Buka URL lokal yang tampil (seperti `http://localhost:10101` atau IP lokal Anda) di browser perangkat yang sama, atau scan QR dari HP.
 4. Masukkan password dan bagikan file atau teks. Untuk menerima, masukkan password yang sama.
 
 **Auto Start:** Pilih **Auto Start** dari menu untuk menjalankan server saat login.
