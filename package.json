@@ -1,6 +1,6 @@
 {
   "name": "hourshare",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Hour Share — Local file & text sharing via QR (CLI wrapper)",
   "bin": {
     "hourshare": "bin/hourshare.js"

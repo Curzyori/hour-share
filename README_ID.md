@@ -107,7 +107,7 @@ hourshare
 
 ```text
 ========================================
-  Hour Share (v1.0.2)
+  Hour Share (v1.0.3)
   🚀 Server: http://localhost:10101
 ========================================
  ★ Start (Open in Browser)           ○ Stopped
