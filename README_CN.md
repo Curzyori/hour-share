@@ -222,4 +222,4 @@ hourshare --help               # 显示帮助
 
 本项目基于 **MIT** 许可证发布 - 完整文本见 <a href="LICENSE">LICENSE</a>。
 
-<sub>作为 50 Projects Challenge 的第 21 个项目，由 **@Curzyori** 倾情打造</sub>
+<p align="center"><sub>作为 50 Projects Challenge 的第 21 个项目，由 **@Curzyori** 倾情打造</sub></p>

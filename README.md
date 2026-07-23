@@ -222,4 +222,4 @@ Your donations keep my projects free and open source. Every contribution matters
 
 This project is released under the **MIT** license - see <a href="LICENSE">LICENSE</a> for full text.
 
-<sub>Built with passion as the 21st Project of the 50 Projects Challenge by **@Curzyori**</sub>
+<p align="center"><sub>Built with passion as the 21st Project of the 50 Projects Challenge by **@Curzyori**</sub></p>

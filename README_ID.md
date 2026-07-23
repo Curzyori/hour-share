@@ -222,4 +222,4 @@ Donasi Anda menjaga proyek ini tetap gratis dan open-source. Setiap kontribusi s
 
 Project ini dirilis under lisensi **MIT** - lihat <a href="LICENSE">LICENSE</a> untuk teks lengkap.
 
-<sub>Dibangun dengan passion sebagai Project ke-21 dari 50 Projects Challenge by **@Curzyori**</sub>
+<p align="center"><sub>Dibangun dengan passion sebagai Project ke-21 dari 50 Projects Challenge by **@Curzyori**</sub></p>

@@ -222,4 +222,4 @@ hourshare --help               # ヘルプ表示
 
 本プロジェクトは **MIT** ライセンスで公開されています - 全文は <a href="LICENSE">LICENSE</a> を参照。
 
-<sub>50 Projects Challenge の第21弾として **@Curzyori** が情熱を込めて開発</sub>
+<p align="center"><sub>50 Projects Challenge の第21弾として **@Curzyori** が情熱を込めて開発</sub></p>
