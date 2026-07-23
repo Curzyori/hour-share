@@ -110,6 +110,7 @@ hour-share/
 │   ├── bundles/            # Uploaded file bundles (auto-expired)
 │   └── groups/             # Group chat data
 └── Auto-Start/             # OS service configs (systemd / LaunchAgent / schtasks)
+```
 
 ---
 
