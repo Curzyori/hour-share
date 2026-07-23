@@ -8,7 +8,7 @@
 
 - **Tagline**: Share Files & Text Across Devices via QR Code — No Internet, No Login
 - **Status**: v1.0.0 — shipped (auto-start + CLI menu + Check Update)
-- **Repo**: `github.com/curzyori/hour-share`
+- **Repo**: `github.com/Curzyori/hour-share`
 - **Website**: `hour-share.curzy.dev`
 - **License**: MIT
 

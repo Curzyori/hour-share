@@ -28,12 +28,15 @@
 <p align="center">
   <a href="#kenapa-hour-share">Kenapa Ini</a> ·
   <a href="#fitur-utama">Fitur</a> ·
+  <a href="#architecture">Architecture</a> ·
+  <a href="#tech-stack">Tech Stack</a> ·
   <a href="#cara-pakai">Cara Pakai</a> ·
   <a href="#instalasi">Instalasi</a> ·
   <a href="#cli-flags">CLI Flags</a> ·
   <a href="#api-endpoints">API</a> ·
   <a href="#preview">Preview</a> ·
-  <a href="#support">Support</a>
+  <a href="#support">Support</a> ·
+  <a href="#license">License</a>
 </p>
 
 <p align="center">🌐 Dalam 4 bahasa -
@@ -63,7 +66,7 @@ Hour Share menyelesaikannya: jalankan CLI, scan QR, bagikan file atau teks insta
 
 ---
 
-## Fitur Utama
+## ✨ Fitur Utama
 
 | Fitur | Status | Deskripsi |
 | :--- | :---: | :--- |
@@ -73,6 +76,7 @@ Hour Share menyelesaikannya: jalankan CLI, scan QR, bagikan file atau teks insta
 | **Bagikan Teks** | ✅ | Tempel teks, snippet kode, atau link |
 | **Proteksi Password** | ✅ | bcrypt per bundle dan per grup |
 | **Auto-Kedaluwarsa** | ✅ | Sweeper hapus item kedaluwarsa tiap 60 menit |
+| **Check Update** | ✅ | CLI cek npm registry untuk versi terbaru |
 | **Group Chat** | ✅ | Berbagi file dan teks real-time dalam grup |
 | **i18n (EN/ID/CN/JP)** | ✅ | 4 bahasa toggle di header |
 | **Mode Gelap/Terang** | ✅ | Toggle tema di header, preferensi tersimpan |
@@ -80,7 +84,7 @@ Hour Share menyelesaikannya: jalankan CLI, scan QR, bagikan file atau teks insta
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 | Layer | Teknologi |
 |-------|-----------|
@@ -93,7 +97,23 @@ Hour Share menyelesaikannya: jalankan CLI, scan QR, bagikan file atau teks insta
 
 ---
 
-## Cara Pakai
+## 🏗️ Architecture
+
+```
+hour-share/
+├── bin/hourshare.js        # CLI: TUI menu, daemon spawn, auto-start
+├── server.py               # Flask backend (file/text share, QR, auth, sweeper)
+├── requirements.txt        # Python dependencies
+├── templates/index.html    # Web dashboard (2-col grid, tabs, i18n, theme)
+├── static/                 # Static assets (CSS/JS)
+├── shared/                 # File storage + metadata JSON
+│   ├── bundles/            # Uploaded file bundles (auto-expired)
+│   └── groups/             # Group chat data
+└── Auto-Start/             # OS service configs (systemd / LaunchAgent / schtasks)
+
+---
+
+## 🚀 Cara Pakai
 
 Install CLI global (disarankan):
 
@@ -125,7 +145,7 @@ hourshare
 
 ---
 
-## Instalasi
+## 📦 Instalasi
 
 <a href="https://github.com/Curzyori/hour-share/releases">Unduh dari GitHub Releases</a> atau build from source:
 
@@ -142,7 +162,7 @@ pip install flask bcrypt qrcode[pil] pillow
 
 ---
 
-## CLI Flags
+## 🎮 CLI Flags
 
 ```bash
 hourshare                     # Menu interaktif
@@ -153,7 +173,7 @@ hourshare --help               # Tampilkan bantuan
 
 ---
 
-## API Endpoints
+## 📡 API Endpoints
 
 | Method | Path | Fungsi |
 |--------|------|--------|
@@ -168,7 +188,7 @@ hourshare --help               # Tampilkan bantuan
 
 ---
 
-## Preview
+## 🖼️ Preview
 
 <table align="center">
   <tr>
@@ -183,17 +203,21 @@ hourshare --help               # Tampilkan bantuan
 
 ---
 
-## Support
+## ☕ Support
 
-<a href="https://donate.curzy.dev/">Dukung project ini dengan traktir kopi!</a>
+Jika Anda merasa project ini bermanfaat, mohon pertimbangkan untuk memberikan ⭐ Star atau melakukan 🍴 Fork untuk menunjukkan dukungan dan membuat saya lebih semangat lagi membuat project open-source yang menarik ke depannya! Setiap star dan fork sangat berharga bagi developer.
+
+Donasi Anda menjaga proyek ini tetap gratis dan open-source. Setiap kontribusi sangat berarti, dan dukungan Anda membantu saya untuk terus membuat proyek open-source menarik ke depannya.
+
+<a href="https://donate.curzy.dev/">Dukung project ini dengan membelikan saya kopi! 💝</a>
 
 <a href="https://donate.curzy.dev/">
-  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="200">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="200" />
 </a>
 
 ---
 
-## License
+## ⚖️ License
 
 Project ini dirilis under lisensi **MIT** - lihat <a href="LICENSE">LICENSE</a> untuk teks lengkap.
 

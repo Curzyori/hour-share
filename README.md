@@ -28,12 +28,15 @@
 <p align="center">
   <a href="#why-hour-share">Why This</a> ·
   <a href="#key-features">Features</a> ·
+  <a href="#architecture">Architecture</a> ·
+  <a href="#tech-stack">Tech Stack</a> ·
   <a href="#quick-start">Quick Start</a> ·
   <a href="#installation">Installation</a> ·
   <a href="#cli-flags">CLI Flags</a> ·
   <a href="#api-endpoints">API</a> ·
   <a href="#preview">Preview</a> ·
-  <a href="#support">Support</a>
+  <a href="#support">Support</a> ·
+  <a href="#license">License</a>
 </p>
 
 <p align="center">🌐 In 4 languages -
@@ -63,7 +66,7 @@ Hour Share solves this: launch the CLI, scan the QR code, and share files or tex
 
 ---
 
-## Key Features
+## ✨ Key Features
 
 | Feature | Status | Description |
 | :--- | :---: | :--- |
@@ -73,6 +76,7 @@ Hour Share solves this: launch the CLI, scan the QR code, and share files or tex
 | **Text Share** | ✅ | Paste text, code snippets, or links |
 | **Password Protection** | ✅ | bcrypt per bundle and per group |
 | **Auto-Expire** | ✅ | Background sweeper removes expired items every 60 minutes |
+| **Check Update** | ✅ | CLI checks npm registry for newer version |
 | **Group Chat** | ✅ | Real-time file and text sharing within a group |
 | **i18n (EN/ID/CN/JP)** | ✅ | 4 languages toggle in the header |
 | **Dark/Light Mode** | ✅ | Theme toggle in header, persistent preference |
@@ -80,7 +84,7 @@ Hour Share solves this: launch the CLI, scan the QR code, and share files or tex
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -93,7 +97,23 @@ Hour Share solves this: launch the CLI, scan the QR code, and share files or tex
 
 ---
 
-## Quick Start
+## 🏗️ Architecture
+
+```
+hour-share/
+├── bin/hourshare.js        # CLI: TUI menu, daemon spawn, auto-start
+├── server.py               # Flask backend (file/text share, QR, auth, sweeper)
+├── requirements.txt        # Python dependencies
+├── templates/index.html    # Web dashboard (2-col grid, tabs, i18n, theme)
+├── static/                 # Static assets (CSS/JS)
+├── shared/                 # File storage + metadata JSON
+│   ├── bundles/            # Uploaded file bundles (auto-expired)
+│   └── groups/             # Group chat data
+└── Auto-Start/             # OS service configs (systemd / LaunchAgent / schtasks)
+
+---
+
+## 🚀 Quick Start
 
 Install the CLI globally (recommended):
 
@@ -125,7 +145,7 @@ hourshare
 
 ---
 
-## Installation
+## 📦 Installation
 
 <a href="https://github.com/Curzyori/hour-share/releases">Download from GitHub Releases</a> or build from source:
 
@@ -142,7 +162,7 @@ pip install flask bcrypt qrcode[pil] pillow
 
 ---
 
-## CLI Flags
+## 🎮 CLI Flags
 
 ```bash
 hourshare                     # Interactive menu
@@ -153,7 +173,7 @@ hourshare --help               # Show help
 
 ---
 
-## API Endpoints
+## 📡 API Endpoints
 
 | Method | Path | Function |
 |--------|------|----------|
@@ -168,7 +188,7 @@ hourshare --help               # Show help
 
 ---
 
-## Preview
+## 🖼️ Preview
 
 <table align="center">
   <tr>
@@ -183,17 +203,21 @@ hourshare --help               # Show help
 
 ---
 
-## Support
+## ☕ Support
 
-<a href="https://donate.curzy.dev/">Support this project by buying me a coffee!</a>
+If you find this project useful, please consider giving it a ⭐ Star or 🍴 Forking it to show support and keep me motivated to build more exciting open-source projects! Every single star and fork means a lot.
+
+Your donations keep my projects free and open source. Every contribution matters, and your support helps me continue building exciting open-source projects in the future.
+
+<a href="https://donate.curzy.dev/">Support this project by buying me a coffee! 💝</a>
 
 <a href="https://donate.curzy.dev/">
-  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="200">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="200" />
 </a>
 
 ---
 
-## License
+## ⚖️ License
 
 This project is released under the **MIT** license - see <a href="LICENSE">LICENSE</a> for full text.
 
