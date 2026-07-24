@@ -5,3 +5,8 @@ __pycache__/
 shared/bundles/
 shared/groups/
 shared/metadata.json
+
+# GSD planning files (local only)
+TASK.md
+SUMMARY.md
+PLAN.md
